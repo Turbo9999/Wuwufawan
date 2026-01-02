@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1隊無無發文 - 終極效率版</title>
+    <title>戰術發文處理器 - Pro v3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -44,7 +44,6 @@
         .input-area:focus-within {
             border-color: var(--primary);
             box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
-            transform: scale(1.005);
         }
 
         .btn-action {
@@ -69,6 +68,19 @@
             left: 100%;
         }
 
+        .option-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .option-card.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--primary);
+            color: white;
+        }
+
         textarea::-webkit-scrollbar {
             width: 4px;
         }
@@ -77,25 +89,8 @@
             border-radius: 10px;
         }
 
-        .scanline {
-            width: 100%;
-            height: 2px;
-            background: rgba(59, 130, 246, 0.1);
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 10;
-            pointer-events: none;
-            animation: scan 4s linear infinite;
-        }
-
-        @keyframes scan {
-            0% { top: 0; }
-            100% { top: 100%; }
-        }
-
         .copy-overlay {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(15, 23, 42, 0.8);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
@@ -109,84 +104,106 @@
 </head>
 <body class="p-4 md:p-8">
 
-    <div class="relative max-w-6xl w-full glass rounded-[2.5rem] overflow-hidden flex flex-col lg:flex-row min-h-[750px]">
-        <div class="scanline"></div>
+    <div class="relative max-w-6xl w-full glass rounded-[2.5rem] overflow-hidden flex flex-col lg:flex-row min-h-[850px]">
         
-        <!-- 左側：輸入控制 -->
-        <div class="flex-[1.2] p-8 md:p-12 flex flex-col border-r border-white/5">
-            <header class="mb-10">
+        <!-- 左側：輸入與設定 -->
+        <div class="flex-[1.4] p-8 md:p-12 flex flex-col border-r border-white/5">
+            <header class="mb-8">
                 <div class="flex items-center gap-3 mb-4">
                     <span class="px-3 py-1 rounded-md bg-blue-500/20 text-blue-400 text-[10px] font-black tracking-widest uppercase">
-                        Tactical Processor v2.1
+                        Tactical Processor v3.0
                     </span>
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight leading-none mb-3">1隊無無發文</h1>
-                <p class="text-gray-500 font-mono text-xs uppercase tracking-[0.4em]">Optimized Output Protocol</p>
+                <h1 class="text-4xl font-black text-white tracking-tight leading-none mb-3">多功能發文處理</h1>
+                <p class="text-gray-500 font-mono text-xs uppercase tracking-[0.4em]">Advanced Security Protocols</p>
             </header>
             
-            <div class="flex-1 flex flex-col space-y-4">
-                <div class="flex items-center justify-between px-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                        <i data-lucide="text-quote" size="14"></i>
-                        Raw Intelligence
+            <div class="space-y-8 flex-1 flex flex-col">
+                <!-- 第一區：選擇標籤 -->
+                <section>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 block flex items-center gap-2">
+                        <i data-lucide="shield-check" size="14"></i> 機密等級選擇
                     </label>
-                    <button onclick="clearText()" class="text-gray-500 hover:text-red-400 transition-all flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider group">
-                        <i data-lucide="trash-2" size="14" class="group-hover:rotate-12 transition-transform"></i> 
-                        清空內容
-                    </button>
-                </div>
-                
-                <div class="input-area rounded-3xl p-6 flex-1 flex flex-col">
-                    <textarea id="inputText" 
-                        class="w-full h-full bg-transparent border-none outline-none text-white text-lg leading-relaxed placeholder:text-gray-700 resize-none font-normal" 
-                        placeholder="請輸入欲格式化之訊息內容..."></textarea>
+                    <div class="grid grid-cols-4 gap-3">
+                        <div onclick="selectTag('【無】')" id="tag-【無】" class="option-card active p-3 rounded-xl text-center text-sm font-bold">無</div>
+                        <div onclick="selectTag('【密】')" id="tag-【密】" class="option-card p-3 rounded-xl text-center text-sm font-bold">密</div>
+                        <div onclick="selectTag('【絕】')" id="tag-【絕】" class="option-card p-3 rounded-xl text-center text-sm font-bold">絕</div>
+                        <div onclick="selectTag('【機】')" id="tag-【機】" class="option-card p-3 rounded-xl text-center text-sm font-bold">機</div>
+                    </div>
+                </section>
+
+                <!-- 第二區：選擇模式 -->
+                <section>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 block flex items-center gap-2">
+                        <i data-lucide="layout-list" size="14"></i> 插入模式
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div onclick="selectMode('each')" id="mode-each" class="option-card active p-4 rounded-xl flex items-center justify-center gap-2 font-bold">
+                            <i data-lucide="rows-3" size="18"></i> 每段增加
+                        </div>
+                        <div onclick="selectMode('last')" id="mode-last" class="option-card p-4 rounded-xl flex items-center justify-center gap-2 font-bold">
+                            <i data-lucide="chevron-last" size="18"></i> 最後一行
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 第三區：原始內容 -->
+                <div class="flex-1 flex flex-col space-y-4">
+                    <div class="flex items-center justify-between px-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="text-quote" size="14"></i> Raw Intelligence
+                        </label>
+                        <button onclick="clearText()" class="text-gray-500 hover:text-red-400 transition-all flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                            <i data-lucide="trash-2" size="14"></i> 清空
+                        </button>
+                    </div>
+                    
+                    <div class="input-area rounded-3xl p-6 flex-1 flex flex-col">
+                        <textarea id="inputText" 
+                            class="w-full h-full bg-transparent border-none outline-none text-white text-lg leading-relaxed placeholder:text-gray-700 resize-none" 
+                            placeholder="請輸入內容..."></textarea>
+                    </div>
                 </div>
                 
                 <button onclick="processText()" class="btn-action w-full text-white font-black py-5 rounded-2xl flex items-center justify-center gap-4 shadow-2xl hover:-translate-y-1 active:translate-y-0.5 transition-all">
                     <i data-lucide="zap" fill="currentColor"></i>
-                    <span class="text-xl tracking-widest uppercase">執行格式化輸出</span>
+                    <span class="text-xl tracking-widest uppercase">執行格式化</span>
                 </button>
             </div>
         </div>
 
-        <!-- 右側：預覽與導出 -->
+        <!-- 右側：結果 -->
         <div class="flex-1 p-8 md:p-12 bg-black/30 flex flex-col relative">
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6">
                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                    <i data-lucide="cpu" size="14"></i>
-                    Processed Stream
+                    <i data-lucide="cpu" size="14"></i> Processed Output
                 </label>
             </div>
             
-            <div id="outputContainer" class="flex-1 rounded-3xl border border-white/10 p-6 relative transition-all duration-500 overflow-hidden group">
-                <!-- 移除 italic 樣式 -->
+            <div id="outputContainer" class="flex-1 rounded-3xl border border-white/10 p-6 relative transition-all duration-500 overflow-hidden">
                 <textarea id="outputText" readonly 
                     class="w-full h-full bg-transparent border-none outline-none text-blue-100 text-lg leading-relaxed resize-none font-light" 
-                    placeholder="等待處理結果..."></textarea>
+                    placeholder="等待處理..."></textarea>
                 
-                <!-- 覆蓋層按鈕 -->
-                <div id="copyAction" class="copy-overlay absolute inset-0 flex items-center justify-center backdrop-blur-md">
-                    <button onclick="copyResult()" class="bg-white text-slate-900 hover:scale-105 active:scale-95 px-8 py-4 rounded-xl font-black text-base shadow-2xl flex items-center gap-3 transition-all">
+                <div id="copyAction" class="copy-overlay absolute inset-0 flex flex-col items-center justify-center backdrop-blur-md">
+                    <button onclick="copyResult()" id="copyBtn" class="bg-white text-slate-900 hover:scale-105 active:scale-95 px-8 py-4 rounded-xl font-black text-base shadow-2xl flex items-center gap-3 transition-all mb-4">
                         <i data-lucide="clipboard-copy"></i>
                         複製結果
                     </button>
+                    <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">點擊按鈕複製內容</p>
                 </div>
             </div>
 
-            <div id="statusBadge" class="hidden mt-4 opacity-0 transition-all duration-500">
+            <div id="statusBadge" class="hidden mt-6 opacity-0 transition-all duration-500">
                 <div class="flex items-center gap-3 text-emerald-400 font-bold justify-center bg-emerald-500/10 py-3 rounded-xl border border-emerald-500/20 text-xs">
                     <i data-lucide="check-circle-2" size="16"></i>
-                    <span>已通過發文格式校驗</span>
+                    <span>已完成標註格式校驗</span>
                 </div>
             </div>
 
-            <footer class="mt-8 pt-6 border-t border-white/5 flex flex-col items-center gap-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-[0.3em]">Operational Readiness Status: Active</span>
-                </div>
-                <p class="text-[10px] text-gray-600 font-medium">系統模組代碼：W-99-TACTOR-2025</p>
+            <footer class="mt-auto pt-8 flex flex-col items-center gap-4">
+                <p class="text-[10px] text-gray-600 font-medium">系統模組代碼：SEC-MOD-V3-2026</p>
             </footer>
         </div>
     </div>
@@ -194,26 +211,21 @@
     <script>
         lucide.createIcons();
 
-        let audioCtx = null;
+        let currentTag = '【無】';
+        let currentMode = 'each'; // 'each' or 'last'
 
-        function playFeedbackSound() {
-            try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const gain = audioCtx.createGain();
-                gain.connect(audioCtx.destination);
-                gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.01);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        function selectTag(tag) {
+            // 清除舊的
+            document.querySelectorAll('[id^="tag-"]').forEach(el => el.classList.remove('active'));
+            // 設定新的
+            document.getElementById(`tag-${tag}`).classList.add('active');
+            currentTag = tag;
+        }
 
-                const osc = audioCtx.createOscillator();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.2);
-                
-                osc.connect(gain);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.3);
-            } catch (e) {}
+        function selectMode(mode) {
+            document.querySelectorAll('[id^="mode-"]').forEach(el => el.classList.remove('active'));
+            document.getElementById(`mode-${mode}`).classList.add('active');
+            currentMode = mode;
         }
 
         function processText() {
@@ -224,16 +236,37 @@
             const outputContainer = document.getElementById('outputContainer');
 
             if (!input.trim()) {
-                document.getElementById('inputText').classList.add('animate-shake');
-                setTimeout(() => document.getElementById('inputText').classList.remove('animate-shake'), 400);
+                document.getElementById('inputText').parentElement.classList.add('animate-shake');
+                setTimeout(() => document.getElementById('inputText').parentElement.classList.remove('animate-shake'), 400);
                 return;
             }
 
-            // 修改邏輯：括號改為 【無】
-            const processed = input.split('\n').map(line => {
-                const trimmed = line.trim();
-                return trimmed.length > 0 ? `${trimmed} 【無】` : line;
-            }).join('\n');
+            let processed = "";
+
+            if (currentMode === 'each') {
+                // 每段增加
+                processed = input.split('\n').map(line => {
+                    const trimmed = line.trim();
+                    return trimmed.length > 0 ? `${trimmed} ${currentTag}` : line;
+                }).join('\n');
+            } else {
+                // 最後一行增加
+                const lines = input.split('\n');
+                let lastValidIndex = -1;
+                
+                // 尋找最後一個有內容的行
+                for (let i = lines.length - 1; i >= 0; i--) {
+                    if (lines[i].trim().length > 0) {
+                        lastValidIndex = i;
+                        break;
+                    }
+                }
+
+                if (lastValidIndex !== -1) {
+                    lines[lastValidIndex] = `${lines[lastValidIndex].trimEnd()} ${currentTag}`;
+                }
+                processed = lines.join('\n');
+            }
 
             outputArea.value = processed;
             
@@ -244,12 +277,10 @@
 
             confetti({
                 particleCount: 100,
-                spread: 60,
-                origin: { y: 0.7 },
-                colors: ['#3b82f6', '#93c5fd', '#ffffff']
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#3b82f6', '#ffffff']
             });
-
-            playFeedbackSound();
         }
 
         function copyResult() {
@@ -258,40 +289,27 @@
             
             try {
                 document.execCommand('copy');
-                
-                const btn = document.querySelector('#copyAction button');
+                const btn = document.getElementById('copyBtn');
                 const originalHTML = btn.innerHTML;
                 
-                btn.innerHTML = `<i data-lucide="check" class="text-emerald-500"></i> 複製成功`;
+                btn.innerHTML = `<i data-lucide="check" class="text-emerald-500"></i> 複製完成`;
                 btn.classList.add('ring-2', 'ring-emerald-500/50');
                 lucide.createIcons();
                 
-                confetti({
-                    particleCount: 30,
-                    scalar: 0.8,
-                    origin: { y: 0.8 }
-                });
-
                 setTimeout(() => {
                     btn.innerHTML = originalHTML;
                     btn.classList.remove('ring-2', 'ring-emerald-500/50');
                     lucide.createIcons();
                 }, 1500);
-            } catch (err) {
-                console.error('複製失敗', err);
-            }
+            } catch (err) {}
         }
 
         function clearText() {
             document.getElementById('inputText').value = '';
             document.getElementById('outputText').value = '';
             document.getElementById('copyAction').classList.remove('active');
-            
-            const statusBadge = document.getElementById('statusBadge');
-            statusBadge.classList.add('opacity-0');
-            setTimeout(() => statusBadge.classList.add('hidden'), 500);
-            
-            document.getElementById('outputContainer').className = 'flex-1 rounded-3xl border border-white/10 p-6 relative transition-all duration-500 overflow-hidden group';
+            document.getElementById('statusBadge').classList.add('hidden', 'opacity-0');
+            document.getElementById('outputContainer').classList.remove('border-blue-500/40', 'bg-blue-500/5');
         }
     </script>
     
